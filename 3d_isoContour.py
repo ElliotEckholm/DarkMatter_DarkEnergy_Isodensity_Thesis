@@ -40,11 +40,6 @@ scale_factor = YTArray([(1 / (1 + redshift ))])
 
 lambda_a = (lambda_0) / ( (matter_0/(scale_factor**3)) + lambda_0)
 
-# print("----lambda_a------")
-# print(lambda_a)
-# print("----------")
-
-
 if (smoothing == 0.5):
     if (redshift == 0):
         filepath = filepath_z_0_s_0
@@ -62,39 +57,23 @@ data = dict(density = (simulation_data*density_conv, "g/cm**3"),particle_positio
 bbox = np.array([[0, sim_dim], [0, sim_dim], [0, sim_dim]])
 
 #load array into yt dataset
-# ds = yt.load_uniform_grid(data, simulation_data.shape, length_unit=(voxel, "Mpc"), mass_unit=(1.0,"Msun"),bbox=bbox, nprocs=box_size)
 ds = yt.load_uniform_grid(data, simulation_data.shape, length_unit="Mpc", bbox=bbox, nprocs=box_size)
-# ad = ds.all_data()
 
 def matter_density_field(field, data):
     matter_a = (matter_0 / (scale_factor**3)) / ( (matter_0 / (scale_factor**3)) + lambda_0)
-    # print("----matter_a------")
-    # print(matter_a)
-    # print(np.average(data['matter_density'] ))
-    # print("----------")
-
     matter_a = data['density'] * (matter_0 / lambda_0 )
-
-    # return (data['matter_density']    / lambda_a).in_units("g/cm**3")
     return ( matter_a    / lambda_a).in_units("g/cm**3")
 
 
 
 def dark_energy_density_field(field, data):
     yt_lambda_a = yt.YTArray(lambda_a,"g/cm**3")
-    # print("-----yt lambda_a-----")
-    # print(yt_lambda_a)
-    # print("----------")
-    # yt_lambda_a = YTArray([lambda_a]).in_units("g/cm**3")
     return ((yt_lambda_a[0]).in_units("g/cm**3"))
 
 
 
 ds.add_field(('gas','matter_density_field'), function=matter_density_field, units="g/cm**3")
-
 ds.add_field(('gas','dark_energy_density_field'), function=dark_energy_density_field, units="g/cm**3")
-
-
 
 
 # Create a sphere object centered on the highest density point in the simulation
